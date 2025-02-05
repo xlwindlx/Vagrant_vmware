@@ -8,8 +8,8 @@ mkdir -p $HOME/.kube
 cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
 chown $(id -u):$(id -g) $HOME/.kube/config
 
-# flannel install
-kubectl apply -f https://raw.githubusercontent.com/gasida/NDKS/main/3/kube-flannel.yml
+# calico install
+kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.28.1/manifests/calico.yaml
 
 # etcdctl install
 apt install etcd-client -y
