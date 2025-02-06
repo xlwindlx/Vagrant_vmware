@@ -24,6 +24,10 @@ for (( i=1; i<=$1; i++  )); do echo "192.168.100.10$i k8s-w$i" >> /etc/hosts; do
 # apparmor disable
 systemctl stop apparmor && systemctl disable apparmor
 
+# remove ufw
+systemctl disable --now ufw
+apt remove -y ufw
+
 # package install
 apt update
 apt-get install git vim wget zsh bridge-utils net-tools jq tree resolvconf wireguard -y
@@ -45,7 +49,7 @@ systemctl daemon-reload && systemctl restart docker
 swapoff -a
 
 # Installing kubeadm kubelet and kubectl
-apt-get update
+apt-get update -y
 apt-get install -y apt-transport-https ca-certificates curl
 
 # 최신 버전
@@ -56,7 +60,16 @@ apt-get install -y apt-transport-https ca-certificates curl
 curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.31/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
 echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.31/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
 
-sudo apt-get update -y
-sudo apt-get install -y kubelet kubeadm kubectl
-sudo apt-mark hold kubelet kubeadm kubectl
+apt-get update -y
+apt-get install -y kubelet kubeadm kubectl
+apt-mark hold kubelet kubeadm kubectl
 systemctl enable kubelet && systemctl start kubelet
+
+## containerd 재설치
+apt-get update && apt-get install -y containerd
+mkdir -p /etc/containerd
+containerd config default | sudo tee /etc/containerd/config.toml
+sed -i "s/^SystemdCgroup = false/SystemdCgroup = true/g" /etc/containerd/config.toml
+systemctl restart containerd
+
+apt-get upgrade -y && apt-get autoremove -y
