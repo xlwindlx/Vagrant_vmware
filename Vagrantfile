@@ -29,7 +29,7 @@ Vagrant.configure("2") do |config|
 
     # Kubernetes 초기화 스크립트 실행
     subconfig.vm.provision "shell", path: "init_cfg.sh", args: N
-    subconfig.vm.provision "shell", path: "master.sh", args: N
+    subconfig.vm.provision "shell", path: "master.sh"
   end
 
   #----- Worker Nodes 설정 -----
