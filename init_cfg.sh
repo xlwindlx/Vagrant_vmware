@@ -45,6 +45,13 @@ cat <<EOF | tee /etc/docker/daemon.json
 EOF
 systemctl daemon-reload && systemctl restart docker
 
+## containerd 재설치
+apt-get update && apt-get install -y containerd
+mkdir -p /etc/containerd
+containerd config default | sudo tee /etc/containerd/config.toml
+sed -i "s/^SystemdCgroup = false/SystemdCgroup = true/g" /etc/containerd/config.toml
+systemctl restart containerd
+
 # swap off
 swapoff -a
 
@@ -64,12 +71,5 @@ apt-get update -y
 apt-get install -y kubelet kubeadm kubectl
 apt-mark hold kubelet kubeadm kubectl
 systemctl enable kubelet && systemctl start kubelet
-
-## containerd 재설치
-apt-get update && apt-get install -y containerd
-mkdir -p /etc/containerd
-containerd config default | sudo tee /etc/containerd/config.toml
-sed -i "s/^SystemdCgroup = false/SystemdCgroup = true/g" /etc/containerd/config.toml
-systemctl restart containerd
 
 apt-get upgrade -y && apt-get autoremove -y
